@@ -1,5 +1,7 @@
 import asyncio
-from github_trending import github_trend 
+from github_trending import github_trend_json
+from github_trending import github_trend_md
+from github_trending import github_trend_html
 from send_email import send_email 
 
 def build_github_trend(data):
@@ -69,9 +71,13 @@ def build_github_trend(data):
     
     return html_content
 
+
 async def main():
-   github_trending = await github_trend()
-   html = build_github_trend(github_trending)
+   #data_html = await github_trend_html()
+   data_json = await github_trend_json()
+   #data_md = await github_trend_md()
+   #print(data_json)
+   html = build_github_trend(data_json)
    send_email(subject="每日邮件",
         body=html,
         to_email="yuanye.wang@foxmail.com")

@@ -1,7 +1,9 @@
 import json
 from crawl4ai import AsyncWebCrawler
 from crawl4ai.extraction_strategy import JsonCssExtractionStrategy
-async def github_trend():
+
+base_url = "https://github.com/trending"
+async def github_trend_json():
     schema = {
         "name": "Github trending",
         "baseSelector": ".Box-row",
@@ -34,7 +36,6 @@ async def github_trend():
         ],
     }
     extraction_strategy = JsonCssExtractionStrategy(schema, verbose=True)
-
     async with AsyncWebCrawler(verbose=True) as crawler:
         result = await crawler.arun(
             url="https://github.com/trending",
@@ -42,8 +43,23 @@ async def github_trend():
             bypass_cache=True,
         )
         assert result.success, "github 数据抓取失败"
-        github_trending = json.loads(result.extracted_content)
-        for ele in github_trending:
+        github_trending_json = json.loads(result.extracted_content)
+        for ele in github_trending_json:
             ele['repository'] = 'https://github.com/' + ''.join(ele['repository'].split())
+        return github_trending_json
 
-        return github_trending
+async def github_trend_html():
+    async with AsyncWebCrawler(verbose=True) as crawler:
+        result = await crawler.arun(
+            url="https://github.com/trending",
+        )
+        assert result.success, "github 数据抓取失败"
+        return result.cleaned_html
+    
+async def github_trend_md():
+    async with AsyncWebCrawler(verbose=True) as crawler:
+        result = await crawler.arun(
+            url="https://github.com/trending",
+        )
+        assert result.success, "github 数据抓取失败"
+        return result.markdown
